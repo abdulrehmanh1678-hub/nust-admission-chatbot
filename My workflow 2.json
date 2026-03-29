@@ -1,0 +1,149 @@
+{
+  "name": "My workflow 2",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "chatbot",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -352,
+        -16
+      ],
+      "id": "0d4a51f8-d06b-4f96-9d7e-8113613ec63b",
+      "name": "Webhook",
+      "webhookId": "f8a52561-e372-465a-8a27-d0780d4a810c"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:11434/api/generate",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"mistral\",\n  \"prompt\": \"Answer this: There are no quota seats.\",\n  \"stream\": false\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        224,
+        -256
+      ],
+      "id": "2191c251-89ca-416f-b8f3-8fdf60837a55",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"answer\": \"{{ $json.answer }}\"}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        400,
+        -16
+      ],
+      "id": "5794b5e9-90e3-43de-97e8-5e70a098d625",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "fileSelector": "/home/node/.n8n-files/nust-faqs.json",
+        "options": {
+          "fileName": "faq.txt"
+        }
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        -272,
+        -272
+      ],
+      "id": "bdd3e80b-8d82-472d-8865-4861959d3454",
+      "name": "Read/Write Files from Disk"
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        -16,
+        -272
+      ],
+      "id": "d4d310f8-fbaf-4857-9ea7-0742840fc936",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "jsCode": "const userQuestion = $input.first().json?.body?.query || '';\n\nconst faqs = [\n  {\"q\": \"quota\", \"a\": \"There are no quota seats.\"},\n  {\"q\": \"MBBS\", \"a\": \"Admissions in NSHS will be purely on merit, based upon the MDCAT conducted by NUMS.\"},\n  {\"q\": \"open merit ACT\", \"a\": \"Yes, on the basis of NET / MDCAT Score and required ACT Score.\"},\n  {\"q\": \"ICS engineering\", \"a\": \"Yes, candidates having Physics, Mathematics and Computer Science are eligible for Engineering programs.\"},\n  {\"q\": \"pre-medical engineering\", \"a\": \"Candidate can apply but must provide additional math result with passing marks and 60% HSSC marks.\"},\n  {\"q\": \"pre-medical computer science\", \"a\": \"Yes, but must clear Mathematics courses of 6 credit hours within one year.\"},\n  {\"q\": \"foreign BSHND\", \"a\": \"Foreign students are eligible to apply on the basis of NET-Applied Sciences / NUMS-MDCAT / ACT Test.\"},\n  {\"q\": \"foreign MBBS NSHS\", \"a\": \"Foreign students can apply on basis of NUMS MDCAT, SAT-II or foreign MCAT / UCAT score.\"},\n  {\"q\": \"computing arts\", \"a\": \"Yes, if you have Mathematics as mandatory subject in HSSC / A level.\"},\n  {\"q\": \"apply multiple programme\", \"a\": \"Yes, if you meet the eligibility criteria.\"},\n  {\"q\": \"rechecking entry test\", \"a\": \"Yes, within 5 days with fee of Rs.500/- as bank draft in favour of NUST.\"},\n  {\"q\": \"copy entry test result\", \"a\": \"Yes, obtain result details from link available on NUST website.\"},\n  {\"q\": \"sample test papers\", \"a\": \"Yes, Mock Test available on NUST website www.ugadmissions.nust.edu.pk under Sample Test link.\"},\n  {\"q\": \"expatriate students\", \"a\": \"Yes if you reside outside Pakistan with Pakistani passport or dual nationality.\"},\n  {\"q\": \"pick drop facility\", \"a\": \"Yes for students of Rawalpindi and Islamabad only with specified routes for separate charges.\"},\n  {\"q\": \"scholarship\", \"a\": \"Yes, students with minimum GPA 3.5 out of 4.0 are eligible for financial assistance.\"},\n  {\"q\": \"UG disciplines academic\", \"a\": \"Visit: https://nust.edu.pk/admissions/undergraduates/academic-qualification-required-for-different-ug-progammes/\"},\n  {\"q\": \"expatriate dual nationality\", \"a\": \"Expatriate with dual nationality can opt for both NET and SAT on national and international seats.\"},\n  {\"q\": \"BSHND application\", \"a\": \"Apply online at: http://nshsadmission.nust.edu.pk/hnd/\"},\n  {\"q\": \"MBBS application NSHS\", \"a\": \"Visit: https://nust.edu.pk/admissions/NSHS/how-to-apply/\"},\n  {\"q\": \"1Link payment\", \"a\": \"Use 17-digit 1Bill Invoice number to pay via 1Link through Mobile App, Online Banking, ATM, Easy Paisa, Jazz Cash.\"},\n  {\"q\": \"application fee payment\", \"a\": \"Submit through 1Link (1Bill Invoice Number) or Credit Card.\"},\n  {\"q\": \"allied programmes NSHS\", \"a\": \"Currently NSHS offers BS Human Nutrition and Dietetics (BSHND).\"},\n  {\"q\": \"Pakistani foreign passport expatriate\", \"a\": \"If no Pakistani nationality like CNIC, apply as international student on NET or ACT/SAT basis.\"},\n  {\"q\": \"foreigner admission NUST\", \"a\": \"If eligible, apply on NET or ACT / SAT basis. Visit: https://nust.edu.pk/admissions/undergraduates/international-students/\"},\n  {\"q\": \"Urdu Islamiyat Pakistan Studies equivalence\", \"a\": \"No, not compulsory per IBCC rules. Visit: https://ibcc.edu.pk/rules-for-equivalence/\"},\n  {\"q\": \"final year A Level apply\", \"a\": \"Yes, evaluated on O levels basis but provide A level certificate within 15 days of result.\"},\n  {\"q\": \"missed entry test retake\", \"a\": \"No, normally not given another chance unless extreme emergency case by case.\"},\n  {\"q\": \"DAE background programmes\", \"a\": \"Must have 60% marks in Matric and DAE. Check PEC approved Engineering programmes on NUST website.\"},\n  {\"q\": \"selected 3 merits\", \"a\": \"You have option to retain any one seat of your own choice.\"},\n  {\"q\": \"ACT SAT entry test\", \"a\": \"Not required for ACT/SAT basis, but can opt for NET in addition for both streams.\"},\n  {\"q\": \"less 60% FSc part-1\", \"a\": \"Yes for merit generation, but must have 60% or more in FSc complete result when joining.\"},\n  {\"q\": \"equivalence certificate\", \"a\": \"Yes, from IBCC Pakistan for non-FSc stream candidates with minimum 60% marks.\"},\n  {\"q\": \"migration NUST\", \"a\": \"Yes after completion of first year and before final year for good academic record.\"},\n  {\"q\": \"age limit admission\", \"a\": \"No age limit for Undergraduate Admission.\"},\n  {\"q\": \"installment tuition\", \"a\": \"Yes, quarterly (0%), six monthly (2%), or annual (4%) basis as per PM&DC regulations.\"},\n  {\"q\": \"negative marking\", \"a\": \"No negative marking in NUST Entry Test.\"},\n  {\"q\": \"name differs documents\", \"a\": \"Get name changed on CNIC and Passport to match Matric or O level SSC from IBCC.\"},\n  {\"q\": \"NSHS university affiliated\", \"a\": \"NSHS is constituent school of NUST. MBBS degree awarded by NUST.\"},\n  {\"q\": \"university fees revised\", \"a\": \"Usually announced once yearly for following academic year, subject to change.\"},\n  {\"q\": \"UG programmes NUST\", \"a\": \"Visit NUST website for complete list of offered UG programmes.\"},\n  {\"q\": \"salient features UG admissions\", \"a\": \"Visit NUST admissions website for detailed salient features.\"},\n  {\"q\": \"entry test subjects\", \"a\": \"Visit: https://nust.edu.pk/admissions/undergraduates/subjects-included-in-net-with-weightings/\"},\n  {\"q\": \"ACT SAT basis\", \"a\": \"Any candidate with required ACT/SAT scores for prescribed disciplines.\"},\n  {\"q\": \"documents required admission\", \"a\": \"CNIC / Form B or NICOP mandatory. Documents needed for verification of selected candidates.\"},\n  {\"q\": \"gap year repeater\", \"a\": \"Considered as normal candidates with no penalization in merit generation.\"},\n  {\"q\": \"BSHND criteria\", \"a\": \"Visit: https://nust.edu.pk/admissions/alliedprogram/admission-criteria/\"},\n  {\"q\": \"BSHND schedule\", \"a\": \"Visit: https://nust.edu.pk/admissions/alliedprogram/dates-to-remember/\"},\n  {\"q\": \"application fee\", \"a\": \"Pakistani Rs. 5,000 or USD 40; Foreign Rs. 10,000 or USD 80. ACT/SAT: National Rs. 5,000; International Rs. 10,000.\"},\n  {\"q\": \"ACT SAT score deadline\", \"a\": \"25 July 2025. ACT code: 2915, SAT code: 2790. Valid for 2 years.\"},\n  {\"q\": \"ACT SAT scores required\", \"a\": \"Visit: https://nust.edu.pk/admissions/undergraduates/applying-on-the-basis-of-scholastic-aptitude-test-sat/\"},\n  {\"q\": \"test duration MCQs\", \"a\": \"200 MCQs in 3 hours (180 minutes).\"},\n  {\"q\": \"eligibility programmes\", \"a\": \"Visit: https://nust.edu.pk/admissions/undergraduates/eligibility-criteria-for-ug-programmes/\"},\n  {\"q\": \"MBBS fee NSHS\", \"a\": \"Visit: https://nust.edu.pk/admissions/NSHS/fee-structure/\"},\n  {\"q\": \"BSHND fee\", \"a\": \"Visit: https://nust.edu.pk/admissions/alliedprogram/fee-structure-bshnd/\"},\n  {\"q\": \"UG fee structure\", \"a\": \"Visit: https://nust.edu.pk/admissions/fee-structure/undergraduate-financial-matters/\"},\n  {\"q\": \"merit criteria MBBS\", \"a\": \"Visit: https://nust.edu.pk/admissions/NSHS/merit-generation-criteria-mbbs/\"},\n  {\"q\": \"merit BSHND\", \"a\": \"NET/MDCAT/ACT 75%, HSSC 15%, SSC 10%. ACT International: 100% ACT.\"},\n  {\"q\": \"entry test syllabus\", \"a\": \"Based on SSC/HSSC level studies. MCQs with 4 options. English on SAT pattern.\"},\n  {\"q\": \"test venues NET\", \"a\": \"Islamabad: NUST Exam Hall Main Campus H-12. Quetta: Balochistan Campus. Karachi/Gilgit: Per admit card.\"},\n  {\"q\": \"NET result announcement\", \"a\": \"Computer-based within 24 hours, paper-based within 5-7 working days.\"},\n  {\"q\": \"NSHS admission advertised\", \"a\": \"In electronic and print media per NUMS and PM&DC policy.\"},\n  {\"q\": \"MBBS classes start\", \"a\": \"As per PM&DC guidelines.\"},\n  {\"q\": \"NSHS location\", \"a\": \"NUST main campus, sector H-12, Islamabad. Maps: https://rb.gy/f6a26\"},\n  {\"q\": \"BSHND tests\", \"a\": \"Open Merit: NET-Applied Sciences, NUMS MDCAT, National MDCAT. ACT: ACT Test.\"},\n  {\"q\": \"MDCAT NSHS\", \"a\": \"NUMS MDCAT only.\"},\n  {\"q\": \"NET fee exemption\", \"a\": \"Top 3 position holders in HSSC from various boards.\"},\n  {\"q\": \"entry test queries contact\", \"a\": \"Phone: +92 51-90856878\"},\n  {\"q\": \"quarterly semi-annual payment\", \"a\": \"Yes, MBBS admission confirmed with quarterly or six-monthly installments.\"},\n  {\"q\": \"hostel MBBS\", \"a\": \"Yes for boys and girls per NUST SoP. Apply on selection confirmation.\"},\n  {\"q\": \"fee deposit refundable\", \"a\": \"Only security deposit refunded. Admission Processing Fee non-refundable.\"}\n];\n\nlet bestAnswer = \"No matching FAQ found. Please rephrase your question.\";\nlet bestScore = 0;\n\nfor (let faq of faqs) {\n  let score = 0;\n  const questionLower = userQuestion.toLowerCase();\n  const faqQLower = faq.q.toLowerCase();\n  \n  // Check each word\n  const questionWords = questionLower.split(/\\s+/);\n  \n  for (let word of questionWords) {\n    if (word.length > 2) {\n      // Exact word match in FAQ question\n      if (faqQLower.split(/\\s+/).includes(word)) {\n        score += 2;\n      }\n      // Partial word match\n      else if (faqQLower.includes(word)) {\n        score += 1;\n      }\n    }\n  }\n  \n  if (score > bestScore) {\n    bestScore = score;\n    bestAnswer = faq.a;\n  }\n}\n\nreturn { json: { answer: bestAnswer } };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        64,
+        -16
+      ],
+      "id": "40c86155-0966-455c-81ef-a5f0b8aba393",
+      "name": "Code in JavaScript"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        []
+      ]
+    },
+    "Read/Write Files from Disk": {
+      "main": [
+        []
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        []
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "6cece815-d356-4020-97ee-829de7c67078",
+  "meta": {
+    "instanceId": "c329ab317148804f49d8d884097032c453eb543525b7ab420696627c0d8bdc37"
+  },
+  "id": "9U1gsqJ8liBY1XF3",
+  "tags": []
+}
